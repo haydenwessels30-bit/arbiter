@@ -205,6 +205,7 @@ async def providers():
             "key": p.key, "name": p.display_name, "phone": p.retention_number,
             "avg_discount": f"{p.typical_retention_discount_pct[0]}-{p.typical_retention_discount_pct[1]}%",
             "fees": p.common_fees_to_kill,
+            "currency": getattr(p, "currency", "$"),
         })
     return JSONResponse(groups)
 

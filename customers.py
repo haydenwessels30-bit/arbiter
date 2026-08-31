@@ -49,7 +49,8 @@ def add_customer(data: dict) -> str:
         "notes": data.get("notes", ""),
         "authorized": bool(data.get("authorized")),
         "agreed_at": datetime.now(timezone.utc).isoformat() if data.get("authorized") else None,
-        "result": None,  # {"new_rate": float, "savings": float, "call_date": str, "notes": str}
+        "currency": data.get("currency", "$"),
+        "result": None,  # {"new_rate": float, "annual_savings": float, "our_fee": float, "call_date": str}
     }
     customers.append(record)
     _save(CUSTOMERS_FILE, customers)
