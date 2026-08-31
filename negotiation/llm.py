@@ -2,12 +2,10 @@
 LLM client abstraction with free-tier fallbacks.
 
 Priority order:
-1. OPENAI_API_KEY (GPT-4o-mini is cheap and great for this)
-2. GEMINI_API_KEY (Google Gemini, free tier — 15 RPM)
-3. Fallback to scripted responses (no API key needed — behaves like the demo)
-
-In production, this drives BOTH sides of our simulated negotiation (for demos)
-and just the Arbiter side during real calls (the other side is a human rep).
+1. GROQ_API_KEY (Groq Llama — fastest for voice, free tier: 30 req/min, 14k/day)
+2. OPENAI_API_KEY (GPT-4o-mini)
+3. GEMINI_API_KEY (Google Gemini, free tier)
+4. Fallback to scripted responses
 """
 import json
 import os
@@ -16,6 +14,25 @@ import httpx
 
 OPENAI_KEY = os.environ.get("OPENAI_API_KEY", "")
 GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "")
+GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
+
+
+def _call_groq(system_prompt: str, user_message: str, temperature=0.7) -> str:
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {"Authorization": f"Bearer {GROQ_KEY}", "Content-Type": "application/json"}
+    payload = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message},
+        ],
+        "temperature": temperature,
+        "max_tokens": 150,
+    }
+    with httpx.Client(timeout=15) as c:
+        r = c.post(url, headers=headers, json=payload)
+        r.raise_for_status()
+        return r.json()["choices"][0]["message"]["content"].strip()
 
 
 def _call_openai(system_prompt: str, user_message: str, temperature=0.7) -> str:
@@ -54,6 +71,11 @@ def _call_gemini(system_prompt: str, user_message: str, temperature=0.7) -> str:
 def generate(system_prompt: str, user_message: str, temperature=0.7) -> str:
     """Call best available LLM, raise if none configured."""
     errors = []
+    if GROQ_KEY:
+        try:
+            return _call_groq(system_prompt, user_message, temperature)
+        except Exception as e:
+            errors.append(f"groq: {e}")
     if OPENAI_KEY:
         try:
             return _call_openai(system_prompt, user_message, temperature)
@@ -65,9 +87,9 @@ def generate(system_prompt: str, user_message: str, temperature=0.7) -> str:
         except Exception as e:
             errors.append(f"gemini: {e}")
     raise RuntimeError(
-        f"No LLM API key configured. Set OPENAI_API_KEY or GEMINI_API_KEY. Errors: {errors}"
+        f"No LLM API key configured. Set GROQ_API_KEY, OPENAI_API_KEY, or GEMINI_API_KEY. Errors: {errors}"
     )
 
 
 def has_llm() -> bool:
-    return bool(OPENAI_KEY or GEMINI_KEY)
+    return bool(GROQ_KEY or OPENAI_KEY or GEMINI_KEY)

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arbiter — AI Voice Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg-2:#12121a;--fg:#f5f5f7;--muted:#8a8a99;--accent:#6c5ce7;--accent-2:#00d4a8;--danger:#ff6b6b;--warn:#f5c948;--card:#16161f;--border:#252533;--green:#00d4a8;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.container{max-width:700px;margin:0 auto;padding:24px 20px;}
+.logo{font-weight:800;font-size:22px;display:flex;align-items:center;gap:8px;margin-bottom:20px;}
+.logo-mark{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-size:16px;}
+h1{font-size:28px;font-weight:800;margin-bottom:8px;}
+.sub{color:var(--muted);margin-bottom:24px;line-height:1.5;font-size:14px;}
+.setup{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;}
+.setup label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;font-size:11px;}
+.setup select,.setup input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--fg);font-size:14px;font-family:inherit;margin-bottom:12px;}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.call-area{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center;margin-bottom:16px;display:none;}
+.call-area.active{display:block;}
+.mic-btn{width:110px;height:110px;border-radius:50%;border:0;cursor:pointer;font-size:40px;margin:20px auto;display:grid;place-items:center;transition:all .2s;background:var(--accent);color:white;box-shadow:0 8px 30px rgba(108,92,231,0.4);}
+.mic-btn.listening{background:var(--danger);animation:pulse 1.2s infinite;box-shadow:0 0 0 0 rgba(255,107,107,0.5);}
+.mic-btn.thinking{background:var(--warn);animation:none;}
+.mic-btn.ai-speaking{background:var(--green);animation:pulse 0.8s infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 currentColor;}70%{box-shadow:0 0 0 20px transparent;}100%{box-shadow:0 0 0 0 transparent;}}
+.status-text{font-size:14px;color:var(--muted);margin-top:12px;font-weight:600;}
+.transcript{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:20px;text-align:left;max-height:360px;overflow-y:auto;}
+.msg{padding:8px 0;border-bottom:1px solid var(--border);line-height:1.5;font-size:14px;}
+.msg:last-child{border-bottom:none;}
+.msg .role{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;}
+.msg.you .role{color:var(--accent);}
+.msg.ai .role{color:var(--accent-2);}
+.msg.you{padding-left:12px;border-left:3px solid var(--accent);}
+.msg.ai{padding-left:12px;border-left:3px solid var(--accent-2);}
+.hint{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5;}
+button.start-call{width:100%;padding:16px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--accent),#8b7eff);color:white;font-weight:700;font-size:16px;cursor:pointer;margin-top:8px;}
+button.end-call{background:var(--danger);color:white;border:0;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;margin-top:12px;font-family:inherit;}
+.badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-left:6px;}
+.badge.on{background:rgba(0,212,168,0.15);color:var(--green);}
+.badge.off{background:rgba(255,107,107,0.15);color:var(--danger);}
+.warning{background:rgba(245,201,72,0.1);border:1px solid rgba(245,201,72,0.3);color:var(--warn);padding:12px 14px;border-radius:10px;font-size:13px;margin-bottom:16px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="/admin" style="color:var(--muted);font-size:13px;text-decoration:none;display:inline-block;margin-bottom:12px;">← Back to dashboard</a>
+  <div class="logo"><span class="logo-mark">⚖️</span> Arbiter <span style="color:var(--muted);font-weight:500;font-size:14px;margin-left:8px;">AI Voice Negotiator</span></div>
+  <h1>🎤 Talk to the AI negotiator</h1>
+  <p class="sub">Pretend you're the DStv/Vodacom/MTN rep and the AI will try to negotiate a lower bill with you. Speak naturally when it's your turn.</p>
+
+  <div id="llm-status"></div>
+
+  <div class="setup" id="setup-box">
+    <label>Provider (who is the AI calling?)</label>
+    <select id="provider-sel"></select>
+    <div class="row">
+      <div>
+        <label>Customer name</label>
+        <input id="cust-name" value="Thabo Mokoena" />
+      </div>
+      <div>
+        <label>Current monthly bill</label>
+        <input id="cust-amt" type="number" value="899" step="0.01" />
+      </div>
+    </div>
+    <button class="start-call" onclick="startCall()">📞 Start AI call</button>
+    <p class="hint">You'll need to allow microphone access in your browser. Chrome works best.</p>
+  </div>
+
+  <div class="call-area" id="call-area">
+    <button class="mic-btn" id="mic-btn" onclick="toggleMic()">🎙️</button>
+    <div class="status-text" id="status">Click the mic to start talking</div>
+    <div class="transcript" id="transcript"></div>
+    <button class="end-call" onclick="endCall()">End call</button>
+  </div>
+</div>
+
+<script>
+const providers = {
+  dstv: {name:'DStv / Multichoice', phone:'011 289 2222', cur:'R'},
+  vodacom: {name:'Vodacom', phone:'082 135', cur:'R'},
+  mtn: {name:'MTN', phone:'083 801 2373', cur:'R'},
+  cellc: {name:'Cell C', phone:'084 135', cur:'R'},
+  telkom_mobile: {name:'Telkom Mobile', phone:'081 180', cur:'R'},
+  telkom_fibre: {name:'Telkom Fibre/LTE', phone:'081 180', cur:'R'},
+  afrihost: {name:'Afrihost', phone:'011 612 7200', cur:'R'},
+  webafrica: {name:'Webafrica', phone:'021 464 9500', cur:'R'},
+  rain: {name:'RAIN (5G/LTE)', phone:'087 727 6000', cur:'R'},
+  adt_za: {name:'ADT South Africa', phone:'086 12 12 300', cur:'R'},
+  comcast: {name:'Comcast/Xfinity (US)', phone:'1-800-934-6489', cur:'$'},
+};
+const providerSel = document.getElementById('provider-sel');
+Object.entries(providers).forEach(([k,v])=>{
+  const opt=document.createElement('option');opt.value=k;opt.textContent=`${v.name} (${v.cur})`;providerSel.appendChild(opt);
+});
+providerSel.value='dstv';
+
+let sessionId='sess_'+Math.random().toString(36).slice(2);
+let history=[];
+let recog=null;
+let isListening=false;
+let isAiSpeaking=false;
+let synth=window.speechSynthesis;
+let callActive=false;
+
+// Check LLM status
+fetch('/api/health').then(r=>r.json()).then(d=>{
+  const s=document.getElementById('llm-status');
+  if(d.llm_enabled){
+    s.innerHTML=`<div class="warning" style="background:rgba(0,212,168,0.1);border-color:rgba(0,212,168,0.3);color:var(--green);">
+      🧠 AI brain: <strong>connected</strong> <span class="badge on">ON</span><br>
+      <span style="font-size:12px;">Real LLM is driving the conversation. It will respond intelligently to whatever you say.</span>
+    </div>`;
+  } else {
+    s.innerHTML=`<div class="warning">
+      ⚠️ AI brain is in <strong>scripted/demo mode</strong> <span class="badge off">DEMO</span><br>
+      <span style="font-size:12px;">The AI will respond to basic keywords (greetings, offers, verification requests). For fully intelligent conversation, add a free Groq API key (takes 2 min @ <a href="https://console.groq.com/keys" target="_blank" style="color:var(--warn);">console.groq.com</a>).</span>
+    </div>`;
+  }
+});
+
+function addMsg(role, text){
+  const box=document.getElementById('transcript');
+  const d=document.createElement('div');
+  d.className='msg '+role;
+  d.innerHTML=`<div class="role">${role==='you'?'You (rep)':'🤖 AI (Alex)'}:</div><div>${text}</div>`;
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+
+async function startCall(){
+  callActive=true;
+  document.getElementById('setup-box').style.display='none';
+  document.getElementById('call-area').classList.add('active');
+  sessionId='sess_'+Math.random().toString(36).slice(2);
+  history=[];
+  document.getElementById('transcript').innerHTML='';
+  // AI opens the call
+  await aiTurn('');
+}
+
+function endCall(){
+  callActive=false;
+  stopListening();
+  synth.cancel();
+  document.getElementById('setup-box').style.display='block';
+  document.getElementById('call-area').classList.remove('active');
+}
+
+async function aiTurn(userMessage){
+  const btn=document.getElementById('mic-btn');
+  const status=document.getElementById('status');
+  btn.className='mic-btn thinking';
+  btn.textContent='⏳';
+  status.textContent='AI is thinking...';
+  if(userMessage) addMsg('you', userMessage);
+
+  try{
+    const p=providers[document.getElementById('provider-sel').value];
+    const r=await fetch('/api/voice/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      session_id:sessionId,
+      provider_key:document.getElementById('provider-sel').value,
+      provider_name:p.name,
+      customer_name:document.getElementById('cust-name').value,
+      customer_amount:parseFloat(document.getElementById('cust-amt').value),
+      currency:p.cur,
+      message:userMessage,
+      history:history,
+    })});
+    const d=await r.json();
+    const reply=d.reply;
+    history.push({role:'user',content:userMessage||'(call starting)'});
+    history.push({role:'assistant',content:reply});
+    addMsg('ai', reply);
+    // Speak it
+    btn.className='mic-btn ai-speaking';
+    btn.textContent='🔊';
+    status.textContent='AI is speaking...';
+    isAiSpeaking=true;
+    const u=new SpeechSynthesisUtterance(reply);
+    u.rate=1.0;u.pitch=1.0;
+    // Try to pick a good voice
+    const voices=synth.getVoices();
+    const preferred=voices.find(v=>/en[-_]US/i.test(v.lang) && /female|samantha|zira|google us english/i.test(v.name)) || voices.find(v=>/en/i.test(v.lang));
+    if(preferred) u.voice=preferred;
+    u.onend=()=>{
+      isAiSpeaking=false;
+      btn.className='mic-btn';btn.textContent='🎙️';
+      status.textContent='Click mic and respond as the rep';
+      // Auto-listen for convenience
+      setTimeout(startListening, 300);
+    };
+    synth.speak(u);
+  }catch(e){
+    status.textContent='Error: '+e.message;
+    btn.className='mic-btn';btn.textContent='🎙️';
+  }
+}
+
+function toggleMic(){
+  if(isListening) stopListening();
+  else if(!isAiSpeaking) startListening();
+}
+
+function startListening(){
+  if(!callActive||isAiSpeaking) return;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Speech recognition not supported. Use Chrome/Edge.');return;}
+  recog=new SR();
+  recog.lang='en-US';recog.continuous=false;recog.interimResults=false;
+  recog.onstart=()=>{
+    isListening=true;
+    document.getElementById('mic-btn').className='mic-btn listening';
+    document.getElementById('mic-btn').textContent='🔴';
+    document.getElementById('status').textContent='Listening... (speak now as the rep)';
+  };
+  recog.onresult=e=>{
+    const text=e.results[0][0].transcript;
+    stopListening();
+    aiTurn(text);
+  };
+  recog.onerror=e=>{
+    stopListening();
+    if(e.error!=='no-speech') document.getElementById('status').textContent='Mic error: '+e.error+'. Click mic to try again.';
+    else document.getElementById('status').textContent='Didn\'t catch that — click mic and try again.';
+  };
+  recog.onend=()=>{if(isListening){isListening=false;}};
+  recog.start();
+}
+
+function stopListening(){
+  isListening=false;
+  document.getElementById('mic-btn').className='mic-btn';
+  document.getElementById('mic-btn').textContent='🎙️';
+  if(recog){try{recog.stop();}catch(e){}recog=null;}
+}
+
+// Load voices early
+if(synth.onvoiceschanged!==undefined) synth.onvoiceschanged=()=>{};
+</script>
+</body>
+</html>
