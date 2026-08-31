@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arbiter — Cut my bill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg-2:#12121a;--fg:#f5f5f7;--muted:#8a8a99;--accent:#6c5ce7;--accent-2:#00d4a8;--card:#16161f;--border:#252533;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;}
+.container{max-width:560px;margin:0 auto;padding:32px 20px;}
+.logo{font-weight:800;font-size:22px;display:flex;align-items:center;gap:8px;margin-bottom:28px;}
+.logo-mark{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-size:16px;}
+.back{color:var(--muted);font-size:13px;text-decoration:none;margin-bottom:12px;display:inline-block;}
+.back:hover{color:var(--fg);}
+h1{font-size:30px;font-weight:800;letter-spacing:-0.8px;margin-bottom:6px;}
+.sub{color:var(--muted);margin-bottom:8px;line-height:1.5;font-size:14px;}
+.region-toggle{display:inline-flex;gap:4px;background:var(--bg-2);padding:3px;border-radius:8px;margin-bottom:20px;}
+.region-btn{background:transparent;border:0;color:var(--muted);padding:6px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:600;font-size:13px;}
+.region-btn.active{background:var(--card);color:var(--fg);}
+.guarantee{display:inline-flex;align-items:center;gap:6px;background:rgba(0,212,168,0.1);border:1px solid rgba(0,212,168,0.3);color:var(--accent-2);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:24px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;}
+.step{margin-bottom:20px;}
+.step-label{font-size:11px;font-weight:800;color:var(--accent-2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--muted);}
+input,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:13px 14px;color:var(--fg);font-size:15px;font-family:inherit;}
+input:focus,select:focus{outline:none;border-color:var(--accent);}
+.row{display:grid;grid-template-columns:2fr 1fr;gap:12px;}
+.how-it-works{background:var(--bg-2);border-radius:10px;padding:14px;margin-bottom:20px;font-size:13px;color:var(--muted);line-height:1.6;}
+.how-it-works strong{color:var(--fg);}
+.how-it-works ul{padding-left:18px;margin-top:6px;}
+.how-it-works li{margin-bottom:3px;}
+.auth-box{background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:16px;margin:18px 0;}
+.auth-check{display:flex;gap:10px;align-items:flex-start;cursor:pointer;}
+.auth-check input{width:auto;margin-top:3px;accent-color:var(--accent);transform:scale(1.3);}
+.auth-check label{margin:0;font-size:13px;font-weight:500;color:var(--fg);cursor:pointer;line-height:1.5;text-transform:none;letter-spacing:0;}
+.auth-check a{color:var(--accent-2);text-decoration:none;}
+.trust-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:20px;font-size:12px;color:var(--muted);}
+.trust-row span{display:inline-flex;align-items:center;gap:4px;}
+button[type=submit]{width:100%;background:linear-gradient(135deg,var(--accent),#8b7eff);padding:16px;border:0;border-radius:12px;color:white;font-weight:700;font-size:16px;cursor:pointer;box-shadow:0 8px 24px rgba(108,92,231,0.4);transition:transform .15s;margin-top:6px;}
+button[type=submit]:hover{transform:translateY(-1px);}
+button[type=submit]:disabled{opacity:0.6;cursor:not-allowed;}
+.success{background:linear-gradient(135deg,rgba(0,212,168,0.08),rgba(108,92,231,0.08));border:1px solid rgba(0,212,168,0.3);border-radius:16px;padding:40px 28px;text-align:center;}
+.success-icon{font-size:56px;margin-bottom:14px;}
+.success h2{font-size:24px;margin-bottom:8px;}
+.success p{color:var(--muted);line-height:1.6;margin-bottom:10px;}
+.cta-next{display:inline-block;margin-top:16px;background:var(--accent-2);color:#000;padding:12px 22px;border-radius:10px;font-weight:700;text-decoration:none;}
+.foot{font-size:12px;color:var(--muted);text-align:center;margin-top:20px;}
+.privacy-note{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.5;}
+.provider-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.provider-card{background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:12px 10px;cursor:pointer;text-align:center;transition:all .15s;font-family:inherit;color:var(--fg);}
+.provider-card:hover{border-color:var(--accent);}
+.provider-card.selected{background:linear-gradient(135deg,rgba(108,92,231,0.15),rgba(0,212,168,0.1));border-color:var(--accent);box-shadow:0 0 0 2px rgba(108,92,231,0.3);}
+.provider-card .pname{font-weight:700;font-size:13px;}
+.provider-card .pdisc{font-size:10px;color:var(--muted);margin-top:2px;}
+.cat-header{grid-column:1/-1;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:8px 0 2px;margin-top:4px;}
+.see-more{background:transparent;border:1px dashed var(--border);color:var(--muted);padding:8px;border-radius:8px;width:100%;cursor:pointer;font-family:inherit;font-size:12px;margin-top:6px;}
+.see-more:hover{border-color:var(--accent);color:var(--fg);}
+.amt-prefix{position:relative;}
+.amt-prefix::before{content:attr(data-currency);position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700;font-size:15px;z-index:1;}
+.amt-prefix input{padding-left:28px;}
+.optional-phone{margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="/" class="logo"><span class="logo-mark">⚖️</span> Arbiter</a>
+  <a href="/" class="back">← Back</a>
+
+  <div id="form-view">
+    <h1>Cut my bill.</h1>
+    <p class="sub">Takes 30 seconds. We call your provider and negotiate a lower rate. You pay <strong style="color:var(--fg)">25% of savings — nothing if we don't win</strong>.</p>
+    <div class="guarantee">✅ No payment unless we save you money · No subscription · Cancel anytime</div>
+
+    <div class="region-toggle">
+      <button type="button" class="region-btn active" data-region="za" onclick="switchRegion('za',this)">🇿🇦 South Africa</button>
+      <button type="button" class="region-btn" data-region="us" onclick="switchRegion('us',this)">🇺🇸 United States</button>
+    </div>
+
+    <div class="card">
+      <form id="signup-form">
+
+        <div class="step">
+          <div class="step-label">Step 1 — Your info</div>
+          <label>First name</label>
+          <input type="text" name="name" required placeholder="Alex" style="margin-bottom:10px;">
+          <label>Email</label>
+          <input type="email" name="email" required placeholder="you@example.com">
+          <label class="optional-phone">Phone <span style="font-weight:400;color:var(--muted)">(optional — only if provider needs 3-way verification)</span></label>
+          <input type="tel" name="phone" placeholder="082 123 4567">
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 2 — Which bill?</div>
+          <label>Pick your provider</label>
+          <div class="provider-cards" id="provider-cards"></div>
+          <button type="button" class="see-more" id="see-more">Show more providers</button>
+          <input type="hidden" name="provider_key" id="provider_key" required>
+          <input type="hidden" name="provider_name" id="provider_name">
+        </div>
+
+        <div class="step">
+          <label>What are you paying per month?</label>
+          <div class="amt-prefix" id="amt-wrap" data-currency="R">
+            <input type="number" name="monthly_amount" step="0.01" min="10" required placeholder="699">
+          </div>
+        </div>
+
+        <div class="how-it-works" id="how-it-works">
+          <strong>How it works:</strong>
+          <ul>
+            <li>We call your provider and negotiate a lower rate</li>
+            <li>We handle hold music, haggling, and transfers to retentions</li>
+            <li>If we need account verification, we'll text/3-way call you during the call (10 seconds)</li>
+            <li>You get an email with your new rate within 48 hours</li>
+            <li>Only pay if we actually lower your bill — 25% of annual savings</li>
+          </ul>
+        </div>
+
+        <div class="auth-box">
+          <label class="auth-check">
+            <input type="checkbox" id="auth-check" name="authorized" required>
+            <label for="auth-check">
+              I authorize Arbiter to contact my provider on my behalf to request a lower rate. This is for rate negotiation only — Arbiter cannot cancel service, add services, or make billing changes. I pay 25% of first-year savings only if a lower rate is secured.
+            </label>
+          </label>
+        </div>
+
+        <button type="submit" id="submit-btn">Cut my bill — free to try →</button>
+
+        <div class="trust-row">
+          <span>🔒 Your data is never sold</span>
+          <span>💳 Charged only on success</span>
+          <span>⚖️ Limited authorization</span>
+        </div>
+        <p class="privacy-note">We don't ask for your account password, PIN, or ID number. If the provider needs identity verification during the call, we'll contact you for a quick 3-way confirmation.</p>
+      </form>
+    </div>
+    <p class="foot">© 2026 Arbiter · We work for you, not the billers</p>
+  </div>
+
+  <div class="success" id="success-view" style="display:none;">
+    <div class="success-icon">🎉</div>
+    <h2>You're in!</h2>
+    <p>We've got your bill in queue. Our team will negotiate with <strong id="s-provider">your provider</strong> within the next 48 hours.</p>
+    <p>If we can lower your bill (typical savings: 20-40%), we'll email you the new rate and an invoice for 25% of your first-year savings.</p>
+    <p><strong style="color:var(--fg)">You pay nothing if we can't cut your bill.</strong></p>
+    <a href="/" class="cta-next">← Back to homepage</a>
+    <p style="font-size:12px;color:var(--muted);margin-top:20px;">Confirmation ID: <code id="cid-display" style="background:var(--bg);padding:2px 6px;border-radius:4px;">—</code></p>
+  </div>
+</div>
+
+<script>
+// Region-specific top providers
+const TOP_PROVIDERS = {
+  za: ['vodacom','mtn','dstv','telkom_fibre','cellc','rain'],
+  us: ['comcast','spectrum','verizon','att','verizon_mobile','tmobile'],
+};
+const CURRENCY = {za:'R', us:'$'};
+const CAT_LABELS = {
+  za_mobile:'🇿🇦 Mobile',za_internet:'🇿🇦 Fibre / Internet',za_tv:'🇿🇦 TV / Streaming',za_home_security:'🇿🇦 Home Security',
+  internet:'🇺🇸 Internet',mobile:'🇺🇸 Mobile',tv:'🇺🇸 TV / Cable',home_security:'🇺🇸 Home Security',
+};
+const REGION_CATS = {
+  za: ['za_mobile','za_internet','za_tv','za_home_security'],
+  us: ['internet','mobile','tv','home_security'],
+};
+
+let allProviders = [];
+let currentRegion = 'za';
+let showAll = false;
+
+fetch('/api/providers').then(r=>r.json()).then(groups=>{
+  allProviders = [];
+  Object.entries(groups).forEach(([cat,list])=>{
+    list.forEach(p=>{allProviders.push({...p,cat});});
+  });
+  renderProviders();
+});
+
+function switchRegion(region, btn){
+  currentRegion = region;
+  showAll = false;
+  document.querySelectorAll('.region-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('amt-wrap').dataset.currency = CURRENCY[region];
+  document.getElementById('provider_key').value='';
+  document.getElementById('provider_name').value='';
+  renderProviders();
+  checkReady();
+}
+
+function renderProviders(){
+  const container=document.getElementById('provider-cards');
+  container.innerHTML='';
+  const regionCats = REGION_CATS[currentRegion];
+  let regionProviders = allProviders.filter(p=>regionCats.includes(p.cat));
+  // Sort: top providers first, then others grouped by category
+  const top = TOP_PROVIDERS[currentRegion];
+  if(!showAll){
+    regionProviders = regionProviders.filter(p=>top.includes(p.key));
+  }
+  // Group by category when showing all
+  if(showAll){
+    regionCats.forEach(cat=>{
+      const inCat = regionProviders.filter(p=>p.cat===cat);
+      if(!inCat.length) return;
+      const hdr=document.createElement('div');
+      hdr.className='cat-header';
+      hdr.textContent=CAT_LABELS[cat]||cat;
+      container.appendChild(hdr);
+      inCat.forEach(p=>container.appendChild(makeCard(p)));
+    });
+  } else {
+    regionProviders.forEach(p=>container.appendChild(makeCard(p)));
+  }
+  const btn=document.getElementById('see-more');
+  btn.textContent=showAll?'Show fewer ↑':`Show more providers (${currentRegion==='za'?'Afrihost, Webafrica, Telkom, ADT, Cell C...':'AT&T, DirecTV, Dish, ADT...'})`;
+}
+
+function makeCard(p){
+  const card=document.createElement('button');
+  card.type='button';card.className='provider-card';card.dataset.key=p.key;card.dataset.name=p.name;
+  card.innerHTML=`<div class="pname">${p.name}</div><div class="pdisc">~${p.avg_discount} off</div>`;
+  card.addEventListener('click',()=>{
+    document.querySelectorAll('.provider-card').forEach(c=>c.classList.remove('selected'));
+    card.classList.add('selected');
+    document.getElementById('provider_key').value=p.key;
+    document.getElementById('provider_name').value=p.name;
+    checkReady();
+  });
+  return card;
+}
+
+document.getElementById('see-more').addEventListener('click',()=>{showAll=!showAll;renderProviders();});
+
+const nameInput=document.querySelector('[name=name]');
+const amtInput=document.querySelector('[name=monthly_amount]');
+const authCheck=document.getElementById('auth-check');
+[nameInput,amtInput,authCheck].forEach(el=>el.addEventListener('input',checkReady));
+authCheck.addEventListener('change',checkReady);
+
+function checkReady(){
+  const btn=document.getElementById('submit-btn');
+  const ready=nameInput.value.trim()&&document.getElementById('provider_key').value&&parseFloat(amtInput.value)>0&&authCheck.checked;
+  btn.disabled=!ready;
+}
+
+document.getElementById('signup-form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;btn.textContent='Submitting...';
+  const fd=new FormData(e.target);
+  try{
+    const r=await fetch('/api/signup',{method:'POST',body:fd});
+    const d=await r.json();
+    if(d.ok){
+      document.getElementById('form-view').style.display='none';
+      document.getElementById('success-view').style.display='block';
+      document.getElementById('s-provider').textContent=document.getElementById('provider_name').value||'your provider';
+      document.getElementById('cid-display').textContent=d.customer_id;
+    }else{alert(d.error||'Error');btn.disabled=false;btn.textContent='Cut my bill — free to try →';}
+  }catch(err){alert('Error: '+err);btn.disabled=false;btn.textContent='Cut my bill — free to try →';}
+});
+</script>
+</body>
+</html>

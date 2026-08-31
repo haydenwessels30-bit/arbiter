@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arbiter — Founder Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg-2:#12121a;--fg:#f5f5f7;--muted:#8a8a99;--accent:#6c5ce7;--accent-2:#00d4a8;--danger:#ff6b6b;--warn:#f5c948;--card:#16161f;--border:#252533;--green:#00d4a8;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+.container{max-width:1100px;margin:0 auto;padding:24px;}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.logo{font-weight:800;font-size:20px;display:flex;align-items:center;gap:8px;}
+.logo-mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-size:15px;}
+.login-box{max-width:380px;margin:120px auto;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;}
+.login-box h2{margin-bottom:16px;font-size:22px;}
+.login-box input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--fg);font-size:15px;font-family:inherit;margin-bottom:12px;}
+.login-box button{width:100%;background:var(--accent);border:0;padding:12px;border-radius:10px;color:white;font-weight:700;cursor:pointer;font-family:inherit;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.stat-card .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.stat-card .value{font-size:26px;font-weight:800;letter-spacing:-0.5px;}
+.stat-card .value.green{color:var(--green);}
+.tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--bg-2);padding:4px;border-radius:10px;width:fit-content;}
+.tab{background:transparent;border:0;color:var(--muted);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600;font-size:13px;}
+.tab.active{background:var(--card);color:var(--fg);}
+.customer-list{display:flex;flex-direction:column;gap:10px;}
+.customer-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.customer-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;}
+.customer-name{font-weight:700;font-size:16px;}
+.customer-meta{font-size:12px;color:var(--muted);margin-top:4px;}
+.status{font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.5px;}
+.status.pending{background:rgba(245,201,72,0.15);color:var(--warn);}
+.status.negotiating{background:rgba(108,92,231,0.2);color:#a29bff;}
+.status.won{background:rgba(0,212,168,0.15);color:var(--green);}
+.status.lost{background:rgba(255,107,107,0.15);color:var(--danger);}
+.status.paid{background:rgba(0,212,168,0.3);color:var(--green);}
+.customer-details{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;font-size:13px;margin-bottom:12px;}
+.customer-details .item .label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
+.customer-details .item .val{font-weight:600;}
+.playbook{background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;margin-bottom:12px;line-height:1.6;}
+.playbook-title{font-weight:700;font-size:11px;color:var(--accent-2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.playbook ol{padding-left:20px;}
+.playbook li{margin-bottom:4px;}
+.actions{display:flex;gap:8px;flex-wrap:wrap;}
+.actions button{padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--fg);cursor:pointer;font-size:12px;font-family:inherit;font-weight:600;transition:all .15s;}
+.actions button:hover{border-color:var(--accent);}
+.actions button.win{background:var(--accent-2);border-color:var(--accent-2);color:#000;}
+.actions button.lose{background:var(--danger);border-color:var(--danger);color:white;}
+.actions button.call{background:var(--accent);border-color:var(--accent);color:white;}
+.result-form{display:none;margin-top:12px;gap:10px;flex-wrap:wrap;align-items:center;}
+.result-form.active{display:flex;}
+.result-form input{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--fg);font-size:13px;width:120px;font-family:inherit;}
+.empty{text-align:center;padding:60px;color:var(--muted);}
+.empty .emoji{font-size:48px;margin-bottom:12px;}
+.email-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;}
+.email-item.e-sent{border-left:3px solid var(--green);}
+.email-item.e-pending{border-left:3px solid var(--warn);}
+.email-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.email-subject{font-weight:600;font-size:14px;}
+.email-to{font-size:12px;color:var(--muted);}
+.email-tag{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;}
+.email-tag.sent{background:rgba(0,212,168,0.15);color:var(--green);}
+.email-tag.pending{background:rgba(245,201,72,0.15);color:var(--warn);}
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="login-view">
+    <div class="login-box">
+      <h2>🔐 Founder Login</h2>
+      <input type="password" id="pw" placeholder="Admin password">
+      <button onclick="login()">Enter</button>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px">Default password: <code style="background:var(--bg);padding:2px 6px;border-radius:4px;">arbiter2026</code></p>
+    </div>
+  </div>
+
+  <div id="dash-view" style="display:none;">
+    <div class="header">
+      <div class="logo"><span class="logo-mark">⚖️</span> Arbiter <span style="color:var(--muted);font-weight:500;font-size:14px;margin-left:8px;">Founder Dashboard</span></div>
+      <div>
+        <a href="/" style="color:var(--muted);font-size:13px;margin-right:16px;">View site →</a>
+        <button onclick="logout()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:6px;cursor:pointer;font-family:inherit;">Log out</button>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <div class="tabs">
+      <button class="tab active" data-status="pending" onclick="switchTab('pending',this)">Pending <span id="pending-count" style="color:var(--warn)">0</span></button>
+      <button class="tab" data-status="negotiating" onclick="switchTab('negotiating',this)">In progress</button>
+      <button class="tab" data-status="won" onclick="switchTab('won',this)">Won</button>
+      <button class="tab" data-status="lost" onclick="switchTab('lost',this)">Lost</button>
+      <button class="tab" data-status="paid" onclick="switchTab('paid',this)">Paid</button>
+      <button class="tab" data-status="all" onclick="switchTab('all',this)">All</button>
+      <button class="tab" data-status="_emails" onclick="switchTab('_emails',this)">📬 Mailbox</button>
+    </div>
+
+    <div class="customer-list" id="customer-list"></div>
+    <div id="email-list" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+let authed = sessionStorage.getItem('arbiter_admin')==='1';
+let currentStatus='pending';
+
+function showDash(){document.getElementById('login-view').style.display='none';document.getElementById('dash-view').style.display='block';load();}
+function logout(){sessionStorage.removeItem('arbiter_admin');location.reload();}
+function login(){
+  const pw=document.getElementById('pw').value;
+  fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})})
+  .then(r=>r.json()).then(d=>{
+    if(d.ok){sessionStorage.setItem('arbiter_admin','1');showDash();}
+    else{alert('Wrong password');}
+  });
+}
+document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+if(authed)showDash();
+
+async function api(path,opts={}){
+  const r=await fetch(path,{credentials:'same-origin',...opts,headers:{'Content-Type':'application/json',...(opts.headers||{})}});
+  if(r.status===401){
+    // Token invalid — show login screen again without page reload
+    sessionStorage.removeItem('arbiter_admin');
+    document.getElementById('dash-view').style.display='none';
+    document.getElementById('login-view').style.display='block';
+    const pw=document.getElementById('pw');
+    pw.value='';
+    pw.focus();
+    return null;
+  }
+  return r.json();
+}
+
+async function load(){
+  const s=await api('/api/admin/stats');
+  if(!s)return;
+  document.getElementById('pending-count').textContent=s.pending?` (${s.pending})`:'';
+  const grid=document.getElementById('stats-grid');
+  grid.innerHTML=`
+    <div class="stat-card"><div class="label">Total signups</div><div class="value">${s.total_customers}</div></div>
+    <div class="stat-card"><div class="label">Pending</div><div class="value" style="color:var(--warn)">${s.pending}</div></div>
+    <div class="stat-card"><div class="label">Negotiating</div><div class="value" style="color:#a29bff">${s.negotiating}</div></div>
+    <div class="stat-card"><div class="label">Won</div><div class="value green">${s.won}</div></div>
+    <div class="stat-card"><div class="label">Saved customers</div><div class="value green">$${s.total_saved_customers.toLocaleString()}</div></div>
+    <div class="stat-card"><div class="label">Your revenue</div><div class="value green">$${s.total_revenue.toLocaleString()}</div></div>
+  `;
+  const customers=await api(`/api/admin/customers?status=${currentStatus}`);
+  const list=document.getElementById('customer-list');
+  if(!customers.length){list.innerHTML=`<div class="empty"><div class="emoji">📭</div>No customers in this queue yet. Promote the signup page to get customers.</div>`;return;}
+  list.innerHTML=customers.map(c=>renderCustomer(c)).join('');
+}
+
+function renderCustomer(c){
+  const cur=currencyFor(c.provider_key);
+  const savings=c.result?c.result.annual_savings:0;
+  const fee=c.result?c.result.our_fee:0;
+  const newRate=c.result?c.result.new_rate:'—';
+  const catName=c.provider_name||'Unknown';
+  const flag=isZA(c.provider_key)?' 🇿🇦':'';
+  return `<div class="customer-card" data-id="${c.id}">
+    <div class="customer-top">
+      <div>
+        <div class="customer-name">${c.name} <span class="status ${c.status}">${c.status}</span></div>
+        <div class="customer-meta">${c.email} ${c.phone?'· '+c.phone:''} · Signed up ${new Date(c.created_at).toLocaleString()} · ID: ${c.id}</div>
+      </div>
+    </div>
+    <div class="customer-details">
+      <div class="item"><div class="label">Provider</div><div class="val">${catName}${flag}</div></div>
+      <div class="item"><div class="label">Currently pays</div><div class="val">${cur}${c.monthly_amount}/mo</div></div>
+      <div class="item"><div class="label">Email</div><div class="val" style="font-size:12px;">${c.email}</div></div>
+      ${c.result?`
+        <div class="item"><div class="label">New rate</div><div class="val" style="color:var(--green)">${cur}${newRate}/mo</div></div>
+        <div class="item"><div class="label">Savings/yr</div><div class="val" style="color:var(--green)">${cur}${savings}</div></div>
+        <div class="item"><div class="label">Your fee (25%)</div><div class="val">${cur}${fee}</div></div>
+      `:''}
+    </div>
+    ${c.status==='pending' || c.status==='negotiating' ? renderPlaybook(c) : ''}
+    <div class="actions">
+      <button onclick="startNegotiating('${c.id}')" class="call">📞 Start negotiating</button>
+      <button onclick="showResultForm('${c.id}')">✓ Mark as won</button>
+      <button onclick="markLost('${c.id}')">✗ Mark as lost</button>
+      ${c.status==='won'?`<button onclick="markPaid('${c.id}')" class="win">💰 Mark paid</button>`:''}
+      <a href="mailto:${c.email}?subject=Arbiter%20bill%20negotiation&body=Hi%20${encodeURIComponent(c.name)}%2C%0A%0A" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--fg);cursor:pointer;font-size:12px;font-family:inherit;font-weight:600;text-decoration:none;">✉ Email</a>
+    </div>
+    <div class="result-form" id="rf-${c.id}">
+      <label style="font-size:12px;color:var(--muted)">New rate:</label>
+      <input type="number" id="nr-${c.id}" step="0.01" placeholder="$/mo">
+      <button onclick="submitWin('${c.id}')" class="win" style="padding:8px 14px;border:0;border-radius:6px;cursor:pointer;font-weight:700;">Save result</button>
+    </div>
+  </div>`;
+}
+
+function isZA(k){return ['vodacom','mtn','cellc','telkom_mobile','telkom_fibre','afrihost','webafrica','rain','dstv','adt_za'].includes(k);}
+function currencyFor(k){return isZA(k)?'R':'$';}
+function renderPlaybook(c){
+  const cur=currencyFor(c.provider_key);
+  const pushAmt=isZA(c.provider_key)?'R50-R150 off + free data/fees waived':'$25-35 off + equipment fee waiver';
+  const smallAmt=isZA(c.provider_key)?'R20-50 off':'$5-10 off';
+  return `<div class="playbook">
+    <div class="playbook-title">🎯 Negotiation Playbook for ${c.provider_name} ${isZA(c.provider_key)?'🇿🇦':''}</div>
+    <ol>
+      <li>Call <strong>${providerPhone(c.provider_key)}</strong> — ask for <strong>Retention / Cancellations / Contract Department</strong> directly (don't waste time with billing).</li>
+      <li>Open with: "Hi, I'm calling on behalf of ${c.name}. I'd like to discuss the rate on their account — we're looking at options."</li>
+      <li>If they ask to verify identity: "Can I have you text or 3-way call ${c.name} for verification? They're available." (text/call the customer — their number is ${c.phone||'in their email'})</li>
+      <li>Note the current rate: <strong>${cur}${c.monthly_amount}/mo</strong>. Cite competitor offers & new-customer pricing (see tab below for specifics).</li>
+      <li>Decline the first offer (usually ${smallAmt}). Push for <strong>${pushAmt}</strong>.</li>
+      <li>Confirm: new monthly rate, duration (12 months minimum), no new contract, email confirmation sent to the customer.</li>
+      <li>Thank them, hang up, and enter the new rate below.</li>
+    </ol>
+    <p style="margin-top:8px;font-size:11px;color:var(--muted);">Tip: see the provider-specific tactics below once you start the call. Be polite but firm — the rep is trained to keep you paying more.</p>
+  </div>`;
+}
+
+const PHONES={
+  comcast:'1-800-934-6489 (press 4 for Cancel)',spectrum:'1-833-267-6094',verizon:'1-800-922-0204',att:'1-800-288-2020',verizon_mobile:'1-800-922-0204',tmobile:'1-800-937-8997',att_mobile:'1-800-331-0500',directv:'1-800-531-5000',dish:'1-866-974-0781',adt:'1-800-238-2727',
+  vodacom:'082 135 (ask for Retentions / Cancellations)',mtn:'083 801 2373 (Cancellations/Retention)',cellc:'084 135',telkom_mobile:'081 180 → Retentions',telkom_fibre:'081 180 → Retentions (or 10210)',afrihost:'011 612 7200 → Retentions',webafrica:'021 464 9500 → Retentions',rain:'087 727 6000 → Customer Retention',dstv:'011 289 2222 → ask for Retentions / Loyalty',adt_za:'086 12 12 300 → Retentions/Cancellations'
+};
+function providerPhone(k){return PHONES[k]||'the number on their bill';}
+
+function switchTab(s,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  currentStatus=s;
+  const list=document.getElementById('customer-list');
+  const emailList=document.getElementById('email-list');
+  if(s==='_emails'){list.style.display='none';emailList.style.display='block';loadEmails();return;}
+  list.style.display='flex';emailList.style.display='none';load();
+}
+
+async function loadEmails(){
+  const emails=await api('/api/admin/emails');
+  const box=document.getElementById('email-list');
+  if(!emails.length){box.innerHTML='<div class="empty"><div class="emoji">📭</div>No emails yet. Emails to customers (and founder alerts) will show here. Connect RESEND_API_KEY to send real emails instead of just logging them.</div>';return;}
+  box.innerHTML=emails.map(e=>`
+    <div class="email-item ${e.sent?'e-sent':'e-pending'}">
+      <div class="email-meta">
+        <span class="email-to">To: ${e.to}</span>
+        <span class="email-tag ${e.sent?'sent':'pending'}">${e.sent?'SENT':'LOGGED'}</span>
+      </div>
+      <div class="email-subject">${e.subject}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">${new Date(e.created_at).toLocaleString()}</div>
+    </div>`).join('');
+}
+async function startNegotiating(id){await api('/api/admin/update',{method:'POST',body:JSON.stringify({id,updates:{status:'negotiating'}})});load();}
+async function markLost(id){await api('/api/admin/update',{method:'POST',body:JSON.stringify({id,updates:{status:'lost'}})});load();}
+async function markPaid(id){await api('/api/admin/update',{method:'POST',body:JSON.stringify({id,updates:{status:'paid'}})});load();}
+function showResultForm(id){document.getElementById('rf-'+id).classList.add('active');}
+async function submitWin(id){
+  const nr=parseFloat(document.getElementById('nr-'+id).value);
+  if(!nr||nr<=0){alert('Enter new rate');return;}
+  const c=(await api(`/api/admin/customers?status=all`)).find(x=>x.id===id);
+  const old=parseFloat(c.monthly_amount);
+  const annual=Math.round((old-nr)*12*100)/100;
+  const fee=Math.round(annual*0.25*100)/100;
+  await api('/api/admin/update',{method:'POST',body:JSON.stringify({id,updates:{status:'won',result:{new_rate:nr,annual_savings:annual,our_fee:fee,call_date:new Date().toISOString()}}})});
+  load();
+}
+</script>
+</body>
+</html>

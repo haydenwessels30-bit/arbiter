@@ -1,0 +1,75 @@
+{
+  "provider": "Comcast/Xfinity",
+  "current_monthly": 118.49,
+  "new_monthly": 80.19,
+  "annual_savings": 459.6,
+  "our_fee": 114.9,
+  "user_keeps": 344.7,
+  "transcript": [
+    {
+      "role": "rep",
+      "text": "Thanks for calling Xfinity, my name is Brittany. How can I help you today?"
+    },
+    {
+      "role": "ai",
+      "text": "Hi Brittany, I'm calling on behalf of Jordan regarding account number ending in 4571. I'd like to discuss their current monthly rate and explore available promotions."
+    },
+    {
+      "role": "rep",
+      "text": "I can look at that for you. Let me pull up the account... Okay, I see they're on the Superfast plan at $99.99/month. That's our current plan pricing."
+    },
+    {
+      "role": "ai",
+      "text": "I appreciate you checking. I see that your Gigabit plan is currently being offered to new customers at $55/month with a 2-year price guarantee. As a 8-year customer with zero late payments, can you match that rate?"
+    },
+    {
+      "role": "rep",
+      "text": "Let me see what promotions are available for loyal customers... I can offer $10 off for 6 months."
+    },
+    {
+      "role": "ai",
+      "text": "That's a nice gesture but it doesn't address the $45 gap versus new-customer pricing. I also see competing offers from Verizon Fios and Astound at $49/month in this zip code. My client would prefer to stay but is prepared to switch today. Are you able to extend the retention plan?"
+    },
+    {
+      "role": "rep",
+      "text": "I'll need to transfer you to the Retention department for that... one moment."
+    },
+    {
+      "role": "hold",
+      "text": "\u231b Hold music (2m 14s)"
+    },
+    {
+      "role": "rep2",
+      "text": "This is Marcus in Retention, I see we're looking at pricing. I can go to $79.99 for 12 months with a free streaming bundle."
+    },
+    {
+      "role": "ai",
+      "text": "Marcus, I appreciate that. To keep this customer today, I need either the new-customer rate or something equivalent in total value. That's $55/month for 24 months, or a $35/month discount plus waiving the $14 equipment rental fee \u2014 those come out to comparable annual value. Which can you do?"
+    },
+    {
+      "role": "rep2",
+      "text": "...Give me one second to check the system... Okay, I can do $35 off for 12 months and remove the equipment fee effective next bill cycle. That brings it to $64.99/month."
+    },
+    {
+      "role": "ai",
+      "text": "Can you confirm that in writing via email to the account within 24 hours, and that there are no new contract terms?"
+    },
+    {
+      "role": "rep2",
+      "text": "Confirmed, no new contract, email goes out tonight."
+    },
+    {
+      "role": "ai",
+      "text": "Great, we'll stay. Thank you, Marcus."
+    },
+    {
+      "role": "rep2",
+      "text": "Thank you, have a good day."
+    },
+    {
+      "role": "summary",
+      "text": "\u2713 Negotiation complete. New rate: $80.19/month (was $118.49). Annual savings: $459.6. Arbiter's fee (25%): $114.9. You keep: $344.7."
+    }
+  ],
+  "offer": "$35/month off for 12 months, free Peacock Premium, and equipment fee waiver"
+}
