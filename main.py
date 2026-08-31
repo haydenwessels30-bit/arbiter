@@ -360,25 +360,19 @@ async def voice_chat(request: Request):
     if not user_message and sess["turn"] == 1:
         opener = None  # let LLM generate the opener
 
-    # Call LLM with scripted fallback
+    # Call LLM — send full conversation history as messages array
     try:
         if llm.has_llm():
-            # Use LLM with full conversation
-            # For speed, we send concatenated history as a single prompt
-            hist_text = ""
-            for h in history[-6:]:
-                role = "REP" if h["role"] == "user" else "YOU (Alex)"
-                hist_text += f"{role}: {h['content']}\n"
+            # Build real messages array with history
+            msgs = [{"role": "system", "content": system}]
+            for h in history[-10:]:
+                msgs.append(h)
             if user_message:
-                hist_text += f"REP (just said): {user_message}\n"
-            prompt = f"""You are on a live phone call. Continue the negotiation naturally. Keep it SHORT (1-2 sentences). Speak as Alex.
-
-CONVERSATION SO FAR:
-{hist_text}
-{"The rep just said: " + user_message if user_message else "This is the start of the call. Greet them, say who you're calling for, and ask for the Retentions/Loyalty department."}
-
-YOUR RESPONSE (say this out loud — natural, spoken English, no bullet points, no markdown):"""
-            reply = llm.generate(system, prompt, temperature=0.8)
+                msgs.append({"role": "user", "content": user_message})
+            elif not history:
+                # First turn — opening
+                msgs.append({"role": "user", "content": "This is the start of the call. Greet them, say who you are and who you're calling for, and ask for the Retentions/Loyalty/Cancellations department. One short sentence."})
+            reply = llm._call_groq_messages(msgs)
         else:
             reply = _scripted_reply(user_message, sess["turn"], provider_key, customer)
     except Exception as e:

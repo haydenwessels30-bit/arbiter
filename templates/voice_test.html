@@ -189,10 +189,28 @@ async function aiTurn(userMessage){
       isAiSpeaking=false;
       btn.className='mic-btn';btn.textContent='🎙️';
       status.textContent='Click mic and respond as the rep';
-      // Auto-listen for convenience
-      setTimeout(startListening, 300);
     };
-    synth.speak(u);
+    // Pick best available voice
+    const pickVoice=()=>{
+      const voices=synth.getVoices();
+      const priority=[
+        /Google US English/i,/Samantha/i,/Microsoft Aria/i,/Microsoft Jenny/i,
+        /Microsoft Guy/i,/Microsoft Richard/i,/Google UK English/i,
+        /en-GB.*Female/i,/en-US.*Female/i,/en-US/i,/en-GB/i
+      ];
+      for(const re of priority){
+        const v=voices.find(v=>re.test(v.name));
+        if(v) return v;
+      }
+      return voices.find(v=>v.lang && v.lang.startsWith('en')) || voices[0];
+    };
+    u.rate=1.05;u.pitch=1.0;
+    const doSpeak=()=>{u.voice=pickVoice();synth.speak(u);};
+    if(synth.getVoices().length===0){
+      synth.onvoiceschanged=()=>{doSpeak();synth.onvoiceschanged=null;};
+    } else {
+      doSpeak();
+    }
   }catch(e){
     status.textContent='Error: '+e.message;
     btn.className='mic-btn';btn.textContent='🎙️';
